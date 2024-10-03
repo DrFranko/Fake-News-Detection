@@ -1,28 +1,50 @@
-from flask import Flask, request, jsonify
-import torch
-from model import FakeNewsClassifier  # Import your model class
-import pickle
+from flask import Flask, request, jsonify, render_template_string
+import joblib
+import logging
 
-# Load vectorizer
-with open('vectorizer.pkl', 'rb') as f:
-    vectorizer = pickle.load(f)
-
+# Initialize the Flask application
 app = Flask(__name__)
 
-# Load the model
-model = FakeNewsClassifier(input_size=5000)
-model.load_state_dict(torch.load('fakenews_model.pth'))
-model.eval()
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+
+# Load model and vectorizer
+try:
+    model = joblib.load('fake_news_model.pkl')
+    vectorizer = joblib.load('vectorizer.pkl')
+    logging.info("Model and vectorizer loaded successfully.")
+except Exception as e:
+    logging.error("Error loading model or vectorizer: %s", e)
+
+@app.route('/')
+def home():
+    return '''
+    <h1>Fake News Detection</h1>
+    <form action="/predict" method="post">
+        <textarea name="news_text" rows="5" cols="50" placeholder="Enter news text here..."></textarea><br>
+        <input type="submit" value="Check News">
+    </form>
+    '''
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    data = request.json['text']
-    vectorized_data = vectorizer.transform([data]).toarray()
-    tensor_data = torch.tensor(vectorized_data, dtype=torch.float32)
-    with torch.no_grad():
-        output = model(tensor_data)
-        _, predicted = torch.max(output, 1)
-        return jsonify({'prediction': int(predicted.item())})
+    news_text = request.form.get('news_text', '').strip()  # Get and strip input text
+    if not news_text:
+        return '<h1 style="color: red;">Please enter some text!</h1>'  # Handle empty input
+    
+    try:
+        # Transform input text and make prediction
+        transformed_text = vectorizer.transform([news_text])
+        prediction = model.predict(transformed_text)[0]
+        
+        result = 'Real' if prediction == 1 else 'Fake'
+        return render_template_string('''
+            <h1>Result: {{ result }} News</h1>
+            <a href="/">Go back</a>
+        ''', result=result)
+    except Exception as e:
+        logging.error("Error during prediction: %s", e)
+        return '<h1 style="color: red;">An error occurred during prediction.</h1>'
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == '__main__':
+    app.run(debug=True)
