@@ -2,13 +2,10 @@ from flask import Flask, request, jsonify, render_template_string
 import joblib
 import logging
 
-# Initialize the Flask application
 app = Flask(__name__)
 
-# Set up logging
 logging.basicConfig(level=logging.INFO)
 
-# Load model and vectorizer
 try:
     model = joblib.load('fake_news_model.pkl')
     vectorizer = joblib.load('vectorizer.pkl')
@@ -28,12 +25,11 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    news_text = request.form.get('news_text', '').strip()  # Get and strip input text
+    news_text = request.form.get('news_text', '').strip() 
     if not news_text:
         return '<h1 style="color: red;">Please enter some text!</h1>'  # Handle empty input
     
     try:
-        # Transform input text and make prediction
         transformed_text = vectorizer.transform([news_text])
         prediction = model.predict(transformed_text)[0]
         
