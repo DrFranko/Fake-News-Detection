@@ -6,10 +6,13 @@ app = Flask(__name__)
 
 logging.basicConfig(level=logging.INFO)
 
+model, vectorizer = None, None
 try:
     model = joblib.load('fake_news_model.pkl')
     vectorizer = joblib.load('vectorizer.pkl')
     logging.info("Model and vectorizer loaded successfully.")
+except FileNotFoundError as e:
+    logging.error("File not found: %s", e)
 except Exception as e:
     logging.error("Error loading model or vectorizer: %s", e)
 
@@ -25,10 +28,14 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    news_text = request.form.get('news_text', '').strip() 
+    if not model or not vectorizer:
+        logging.error("Model or vectorizer is not loaded.")
+        return '<h1 style="color: red;">Model is unavailable. Please check server logs.</h1>'
+
+    news_text = request.form.get('news_text', '').strip()
     if not news_text:
         return '<h1 style="color: red;">Please enter some text!</h1>'  # Handle empty input
-    
+
     try:
         transformed_text = vectorizer.transform([news_text])
         prediction = model.predict(transformed_text)[0]
@@ -43,4 +50,4 @@ def predict():
         return '<h1 style="color: red;">An error occurred during prediction.</h1>'
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
