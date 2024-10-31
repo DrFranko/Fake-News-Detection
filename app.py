@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string  # Fixed F821 by importing
+from flask import Flask, request, render_template_string
 import joblib
 import logging
 
@@ -19,7 +19,8 @@ def home():
     return '''
     <h1>Fake News Detection</h1>
     <form action="/predict" method="post">
-        <textarea name="news_text" rows="5" cols="50" placeholder="Enter news text here..."></textarea><br>
+        <textarea name="news_text" rows="5" cols="50" 
+        placeholder="Enter news text here..."></textarea><br>
         <input type="submit" value="Check News">
     </form>
     '''
@@ -30,7 +31,6 @@ def predict():
     news_text = request.form.get('news_text', '').strip()
     if not news_text:
         return '<h1 style="color: red;">Please enter some text!</h1>'
-    
     try:
         transformed_text = vectorizer.transform([news_text])
         prediction = model.predict(transformed_text)[0]
@@ -44,7 +44,6 @@ def predict():
     except Exception as e:
         logging.error("Error during prediction: %s", e)
         return '<h1 style="color: red;">An error occurred during prediction.</h1>'
-
 
 if __name__ == '__main__':
     app.run(debug=True)
