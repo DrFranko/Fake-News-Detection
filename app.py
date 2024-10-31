@@ -1,4 +1,4 @@
-from flask import Flask, request  # Removed unused 'jsonify'
+from flask import Flask, request, render_template_string  # Fixed F821 by importing
 import joblib
 import logging
 
@@ -35,10 +35,12 @@ def predict():
         transformed_text = vectorizer.transform([news_text])
         prediction = model.predict(transformed_text)[0]
         result = 'Real' if prediction == 1 else 'Fake'
-        return render_template_string('''
+        return render_template_string(
+            '''
             <h1>Result: {{ result }} News</h1>
             <a href="/">Go back</a>
-        ''', result=result)
+            ''', result=result
+        )
     except Exception as e:
         logging.error("Error during prediction: %s", e)
         return '<h1 style="color: red;">An error occurred during prediction.</h1>'
