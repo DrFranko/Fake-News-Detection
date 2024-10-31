@@ -19,7 +19,7 @@ def home():
     return '''
     <h1>Fake News Detection</h1>
     <form action="/predict" method="post">
-        <textarea name="news_text" rows="5" cols="50" 
+        <textarea name="news_text" rows="5" cols="50"
         placeholder="Enter news text here..."></textarea><br>
         <input type="submit" value="Check News">
     </form>
@@ -43,7 +43,11 @@ def predict():
         )
     except Exception as e:
         logging.error("Error during prediction: %s", e)
-        return '<h1 style="color: red;">An error occurred during prediction.</h1>'
+        return (
+            '<h1 style="color: red;">'
+            'An error occurred during prediction.</h1>'
+        )
+
 
 if __name__ == '__main__':
     app.run(debug=True)
