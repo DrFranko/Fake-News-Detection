@@ -45,7 +45,7 @@ jobs:
 
     - name: Run tests
       run: |
-        docker run --rm -p 4000:4000 fake-news-app:latest
+        docker run --rm -p 5000:5000 fake-news-app:latest
 
     - name: Push Docker image
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
