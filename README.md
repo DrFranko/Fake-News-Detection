@@ -8,8 +8,8 @@ This is a simple Flask web application for detecting fake news using a neural ne
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Technologies](#technologies)
-- [CI/CD with GitHub Actions](#githubactions)
-- [Future Enhancements](#enhancements)
+- [CI/CD with GitHub Actions](#CI/CD with GitHub Actions)
+- [Future Enhancements](#FutureEnhancements)
 
 ## Features
 
